@@ -15,7 +15,6 @@ module.exports = {
         ),
 	async execute(interaction) {
         const rssUrl = interaction.options.getString('rss_url');
-        console.log(rssUrl);
         await interaction.deferReply({ ephemeral: true });
         const feed = await parser.parseURL(rssUrl);
 

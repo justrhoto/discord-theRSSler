@@ -1,4 +1,7 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { config } from 'dotenv';
+
+config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -14,4 +17,4 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 });
 
-client.login(TOKEN);
+client.login(process.env.TOKEN);

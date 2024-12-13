@@ -5,15 +5,15 @@ const parser = new Parser();
 let lastFeedItemUrl = null;
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('add-feed')
-		.setDescription('Add feed to channel')
+    data: new SlashCommandBuilder()
+        .setName('add-feed')
+        .setDescription('Add feed to channel')
         .addStringOption(option => option
             .setName('rss_url')
             .setDescription('The RSS feed URL')
             .setRequired(true)
         ),
-	async execute(interaction) {
+    async execute(interaction) {
         const rssUrl = interaction.options.getString('rss_url');
         await interaction.deferReply({ ephemeral: true });
         const feed = await parser.parseURL(rssUrl);
@@ -35,5 +35,5 @@ module.exports = {
         }, 900000);
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
-	},
+    },
 };

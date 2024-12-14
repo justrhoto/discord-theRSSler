@@ -47,7 +47,7 @@ module.exports = {
             .setRequired(true)
         ),
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply();
 
         const rssUrl = interaction.options.getString('rss_url');
         const feed = await parser.parseURL(rssUrl);
@@ -68,6 +68,7 @@ module.exports = {
         feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null, channel: interaction.channel });
         saveFeeds(feedsData.feeds);
 
+        fetchAndSendFeedUpdates(rssUrl, interaction.channel);
         setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000);
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);

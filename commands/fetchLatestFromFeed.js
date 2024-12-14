@@ -19,6 +19,24 @@ const saveFeeds = (feeds) => {
     fs.writeFileSync(feedsFilePath, JSON.stringify(feeds, null, 2));
 };
 
+const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
+    try {
+        const feedsData = loadFeeds();
+        const feed = await parser.parseURL(rssUrl);
+        const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
+
+        const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
+        if (firstItemUrl !== currentFeed.lastPostedItemUrl) {
+            currentFeed.lastPostedItemUrl = firstItemUrl;
+            await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
+            await channel.send(`${firstItemUrl}`);
+            saveFeeds(feedsData.feeds);
+        }
+    } catch (error) {
+        console.error('Error fetching RSS feed:', error);
+    }
+};
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('add-feed')
@@ -50,24 +68,7 @@ module.exports = {
         feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null });
         saveFeeds(feedsData.feeds);
 
-        const fetchAndSendFeedUpdates = async () => {
-            try {
-                const feed = await parser.parseURL(rssUrl);
-                const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
-
-                const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
-                if (firstItemUrl !== currentFeed.lastPostedItemUrl) {
-                    currentFeed.lastPostedItemUrl = firstItemUrl;
-                    await interaction.channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
-                    await interaction.channel.send(`${firstItemUrl}`);
-                    saveFeeds(feedsData.feeds);
-                }
-            } catch (error) {
-                console.error('Error fetching RSS feed:', error);
-            }
-        };
-
-        setInterval(fetchAndSendFeedUpdates, 900000);
+        setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000);
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },

@@ -65,7 +65,7 @@ module.exports = {
             return;
         }
 
-        feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null });
+        feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null, channel: interaction.channel });
         saveFeeds(feedsData.feeds);
 
         setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000);
@@ -75,3 +75,6 @@ module.exports = {
 };
 
 const savedFeeds = loadFeeds();
+savedFeeds.feeds.forEach(feed => {
+    setInterval(() => fetchAndSendFeedUpdates(feed.url, feed.channel), 900000);
+});

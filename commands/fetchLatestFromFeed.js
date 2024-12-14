@@ -23,16 +23,22 @@ module.exports = {
             return;
         }
 
-        setInterval(async () => {
-            const feed = await parser.parseURL(rssUrl);
-            const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
+        const fetchAndSendFeedUpdates = async () => {
+            try {
+                const feed = await parser.parseURL(rssUrl);
+                const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
 
-            if (firstItemUrl !== lastFeedItemUrl) {
-                lastFeedItemUrl = firstItemUrl;
-                await interaction.channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
-                await interaction.channel.send(`${firstItemUrl}`);
+                if (firstItemUrl !== lastFeedItemUrl) {
+                    lastFeedItemUrl = firstItemUrl;
+                    await interaction.channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
+                    await interaction.channel.send(`${firstItemUrl}`);
+                }
+            } catch (error) {
+                console.error('Error fetching RSS feed:', error);
             }
-        }, 900000);
+        };
+
+        setInterval(fetchAndSendFeedUpdates, 900000);
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },

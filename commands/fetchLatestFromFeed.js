@@ -21,16 +21,18 @@ const saveFeeds = (feeds) => {
 
 const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
     try {
+        console.log(`Fetching ${rssUrl}`)
         const feedsData = loadFeeds();
         const feed = await parser.parseURL(rssUrl);
         const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
 
         const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
-        if (firstItemUrl !== currentFeed.lastPostedItemUrl) {
-            currentFeed.lastPostedItemUrl = firstItemUrl;
+        if (feed.items[0].link !== currentFeed.lastPostedItemUrl) {
+            currentFeed.lastPostedItemUrl = feed.items[0].link;
             await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
             await channel.send(`${firstItemUrl}`);
             saveFeeds(feedsData);
+            console.log(`Success`);
         }
     } catch (error) {
         console.error('Error fetching RSS feed:', error);
@@ -78,4 +80,6 @@ module.exports = {
 const savedFeeds = loadFeeds();
 savedFeeds.feeds.forEach(feed => {
     setInterval(() => fetchAndSendFeedUpdates(feed.url, feed.channel), 900000);
+    console.log(`${feed.url}: Feed loaded from config.`);
 });
+console.log(`RSS feed module initialized`);

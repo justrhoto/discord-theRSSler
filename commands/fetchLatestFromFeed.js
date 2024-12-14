@@ -30,7 +30,7 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
             currentFeed.lastPostedItemUrl = firstItemUrl;
             await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
             await channel.send(`${firstItemUrl}`);
-            saveFeeds(feedsData.feeds);
+            saveFeeds(feedsData);
         }
     } catch (error) {
         console.error('Error fetching RSS feed:', error);
@@ -66,7 +66,7 @@ module.exports = {
         }
 
         feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null, channel: interaction.channel });
-        saveFeeds(feedsData.feeds);
+        saveFeeds(feedsData);
 
         fetchAndSendFeedUpdates(rssUrl, interaction.channel);
         setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000);

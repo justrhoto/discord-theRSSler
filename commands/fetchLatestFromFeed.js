@@ -24,13 +24,15 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
         console.log(`Fetching ${rssUrl}`)
         const feedsData = loadFeeds();
         const feed = await parser.parseURL(rssUrl);
-        const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
 
         const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
         if (feed.items[0].link !== currentFeed.lastPostedItemUrl) {
             currentFeed.lastPostedItemUrl = feed.items[0].link;
             await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
+
+            const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
             await channel.send(`${firstItemUrl}`);
+
             saveFeeds(feedsData);
             console.log(`Success`);
         }

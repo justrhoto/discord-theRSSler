@@ -27,6 +27,7 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
 
         const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
         if (feed.items[0].link !== currentFeed.lastPostedItemUrl) {
+            console.log(`New link: ${feed.items[0].link}`);
             currentFeed.lastPostedItemUrl = feed.items[0].link;
             await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
 
@@ -34,8 +35,8 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
             await channel.send(`${firstItemUrl}`);
 
             saveFeeds(feedsData);
-            console.log(`Success`);
         }
+        console.log(`Success`);
     } catch (error) {
         console.error('Error fetching RSS feed:', error);
     }

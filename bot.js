@@ -3,36 +3,20 @@ const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, MessageFlags } = require('discord.js');
 const { config } = require('dotenv');
 
+const cogs = require('./cogs.js');
+
 config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+client.cogs = new Collection();
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const module = require(filePath);
-
-    if (module.init) {
-        module.init(client);
-    }
-
-    const loadCommand = (command) => {
-        if ('data' in command && 'execute' in command) {
-            client.commands.set(command.data.name, command);
-            console.log(`Cog loaded: ${command.data.name}`);
-        } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property`);
-        }
-    }
-
-    if (module.commands) {
-        module.commands.forEach((command) => loadCommand(command));
-    } else {
-        loadCommand(module);
-    }
+    cogs.initializeCog(filePath, client);
 }
 
 client.on(Events.ClientReady, readyClient => {

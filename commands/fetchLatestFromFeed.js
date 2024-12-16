@@ -89,7 +89,7 @@ const initFeeds = (client) => {
     const savedFeeds = loadFeeds();
     savedFeeds.feeds.forEach(async feed => {
         const channel = await client.channels.fetch(feed.channel.id);
-        fetchAndSendFeedUpdates(feed.url, channel)
+        fetchAndSendFeedUpdates(feed.url, channel);
         setInterval(() => fetchAndSendFeedUpdates(feed.url, channel), 900000);
         console.log(`${feed.url}: Feed loaded from config.`);
     });

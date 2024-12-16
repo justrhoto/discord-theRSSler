@@ -30,10 +30,9 @@ for (const file of commandFiles) {
 
     if (module.commands) {
         module.commands.forEach((command) => loadCommand(command));
-        return;
+    } else {
+        loadCommand(module);
     }
-
-    loadCommand(module);
 }
 
 client.on(Events.ClientReady, readyClient => {

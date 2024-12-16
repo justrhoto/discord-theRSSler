@@ -79,6 +79,10 @@ module.exports = {
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },
     init: (client) => {
+        if (client.isReady()) {
+            initFeeds(client);
+            return;
+        }
         client.on(Events.ClientReady, readyClient => {
             initFeeds(readyClient);
         });

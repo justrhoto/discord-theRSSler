@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, Events } = require('discord.js');
 const Parser = require('rss-parser');
 const fs = require('fs');
 const path = require('path');
@@ -78,11 +78,20 @@ module.exports = {
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },
+    init: (client) => {
+        client.on(Events.ClientReady, readyClient => {
+            initFeeds(client);
+        });
+    }
 };
 
-const savedFeeds = loadFeeds();
-savedFeeds.feeds.forEach(feed => {
-    setInterval(() => fetchAndSendFeedUpdates(feed.url, feed.channel), 900000);
-    console.log(`${feed.url}: Feed loaded from config.`);
-});
-console.log(`RSS feed module initialized`);
+const initFeeds = (client) => {
+    const savedFeeds = loadFeeds();
+    savedFeeds.feeds.forEach(async feed => {
+        const channel = await client.channels.fetch(feed.channel.id);
+        fetchAndSendFeedUpdates(feed.url, channel)
+        setInterval(() => fetchAndSendFeedUpdates(feed.url, channel), 900000);
+        console.log(`${feed.url}: Feed loaded from config.`);
+    });
+    console.log(`RSS feed module initialized`);
+}

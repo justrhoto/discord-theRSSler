@@ -80,7 +80,7 @@ module.exports = {
     },
     init: (client) => {
         client.on(Events.ClientReady, readyClient => {
-            initFeeds(client);
+            initFeeds(readyClient);
         });
     }
 };

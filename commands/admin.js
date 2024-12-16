@@ -7,7 +7,8 @@ module.exports = {
         .setName('reload')
         .setDescription('Reloads a command cog.')
         .addStringOption(option => option
-            .setName('cog-name')
+            .setName('cog_name')
+            .setDescription('The name of the cog you want to reload')
             .setRequired(true)
         ),
     async execute(interaction) {

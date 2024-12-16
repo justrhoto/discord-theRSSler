@@ -13,16 +13,27 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if ('data' in command && 'execute' in command) {
-        client.commands.set(command.data.name, command);
-        if (command.init) {
-            command.init(client);
-        }
-        console.log(`Cog loaded: ${command.data.name}`);
-    } else {
-        console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property`);
+    const module = require(filePath);
+
+    if (module.init) {
+        module.init(client);
     }
+
+    const loadCommand = (command) => {
+        if ('data' in command && 'execute' in command) {
+            client.commands.set(command.data.name, command);
+            console.log(`Cog loaded: ${command.data.name}`);
+        } else {
+            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property`);
+        }
+    }
+
+    if (module.commands) {
+        module.commands.forEach((command) => loadCommand(command));
+        return;
+    }
+
+    loadCommand(module);
 }
 
 client.on(Events.ClientReady, readyClient => {

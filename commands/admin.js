@@ -9,7 +9,7 @@ module.exports = {
             .setDescription('Reloads a command cog.')
             .addStringOption(option => option
                 .setName('cog_name')
-                .setDescription('The name of the cog you want to reload')
+                .setDescription('The cog that you want to reload')
                 .setRequired(true)
             ),
         async execute(interaction) {
@@ -36,7 +36,7 @@ module.exports = {
     {
         data: new SlashCommandBuilder()
             .setName('unload')
-            .setDescription('Unload a command cog.')
+            .setDescription('Unloads a command cog.')
             .addStringOption(option => option
                 .setName('cog_name')
                 .setDescription('The cog that you want to unload')
@@ -65,7 +65,7 @@ module.exports = {
     {
         data: new SlashCommandBuilder()
             .setName('load')
-            .setDescription('Load a command cog.')
+            .setDescription('Loads a command cog.')
             .addStringOption(option => option
                 .setName('cog_name')
                 .setDescription('The cog that you want to load')

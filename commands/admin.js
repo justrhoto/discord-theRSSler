@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { SlashCommandBuilder } = require('discord.js')
 
 const cogs = require('../cogs')
@@ -59,6 +61,7 @@ module.exports = {
             }
 
             delete require.cache[require.resolve(cogPath)];
+            interaction.client.cogs.delete(cogName);
             await interaction.editReply(`Cog ${cogName} unloaded.`);
         }
     },
@@ -80,12 +83,14 @@ module.exports = {
             }
 
             const cogName = interaction.options.getString('cog_name', true);
-            const cogPath = interaction.client.cogs.get(cogName);
 
-            if (cogPath) {
+            if (interaction.client.cogs.get(cogName)) {
                 await interaction.editReply(`Cog is already loaded: \`${cogName}\`.`);
                 return;
             }
+
+            const cogFile = fs.readdirSync(__dirname).filter(file => file.endsWith('.js') && path.parse(file).name == cogName);
+            const cogPath = path.join(__dirname, cogFile[0]);
 
             cogs.initializeCog(cogPath, interaction.client);
             await interaction.editReply(`Cog ${cogName} loaded.`);

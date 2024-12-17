@@ -3,7 +3,7 @@ const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, MessageFlags } = require('discord.js');
 const { config } = require('dotenv');
 
-const cogs = require('./cogs.js');
+const cogs = require('./cogs');
 
 config();
 

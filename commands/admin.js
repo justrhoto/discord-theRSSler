@@ -30,7 +30,7 @@ module.exports = {
                 return;
             }
 
-            delete require.cache[require.resolve(cogPath)];
+            cogs.unloadCog(cogPath, interaction.client);
             cogs.initializeCog(cogPath, interaction.client);
             await interaction.editReply(`Cog ${cogName} reloaded!`);
         }
@@ -60,8 +60,7 @@ module.exports = {
                 return;
             }
 
-            delete require.cache[require.resolve(cogPath)];
-            interaction.client.cogs.delete(cogName);
+            cogs.unloadCog(cogPath, interaction.client);
             await interaction.editReply(`Cog ${cogName} unloaded.`);
         }
     },

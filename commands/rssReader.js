@@ -7,6 +7,8 @@ const parser = new Parser();
 
 const feedsFilePath = path.join(__dirname, '..', 'feeds.json');
 
+const intervals = [];
+
 const loadFeeds = () => {
     if (fs.existsSync(feedsFilePath)) {
         const data = fs.readFileSync(feedsFilePath);
@@ -74,11 +76,12 @@ module.exports = {
         saveFeeds(feedsData);
 
         fetchAndSendFeedUpdates(rssUrl, interaction.channel);
-        setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000);
+        intervals.push(setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000));
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },
     init: (client) => {
+        intervals.length = 0;
         if (client.isReady()) {
             initFeeds(client);
             return;
@@ -86,6 +89,12 @@ module.exports = {
         client.on(Events.ClientReady, readyClient => {
             initFeeds(readyClient);
         });
+    },
+    unload: () => {
+        console.log(`Clearing ${intervals.length} intervals before unloading rssReader`);
+        while (intervals.length) {
+            clearInterval(intervals.pop());
+        }
     }
 };
 
@@ -94,7 +103,7 @@ const initFeeds = (client) => {
     savedFeeds.feeds.forEach(async feed => {
         const channel = await client.channels.fetch(feed.channel.id);
         fetchAndSendFeedUpdates(feed.url, channel);
-        setInterval(() => fetchAndSendFeedUpdates(feed.url, channel), 900000);
+        intervals.push(setInterval(() => fetchAndSendFeedUpdates(feed.url, channel), 900000));
         console.log(`${feed.url}: Feed loaded from config.`);
     });
     console.log(`RSS feed module initialized`);

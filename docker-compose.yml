@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    environment:
+      - TOKEN=${TOKEN}
+      - GUILD_ID=${GUILD_ID}
+      - CLIENT_ID=${CLIENT_ID}
+      - ADMIN_USER_ID=${ADMIN_USER_ID} # Ensure you have a .env file with the TOKEN variable
+    restart: unless-stopped

@@ -1,10 +1,12 @@
 version: '3.8'
+name: theRSSler
 
 services:
   bot:
+    image: node:22.11.0
+    env_file: .env
     build:
       context: .
-      dockerfile: Dockerfile
     environment:
       - TOKEN=${TOKEN}
       - GUILD_ID=${GUILD_ID}

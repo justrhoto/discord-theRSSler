@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   bot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - TOKEN=${TOKEN}
       - GUILD_ID=${GUILD_ID}

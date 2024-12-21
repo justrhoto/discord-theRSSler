@@ -8,4 +8,6 @@ services:
       - GUILD_ID=${GUILD_ID}
       - CLIENT_ID=${CLIENT_ID}
       - ADMIN_USER_ID=${ADMIN_USER_ID} # Ensure you have a .env file with the TOKEN variable
+    volumes:
+      - .:/app # Mount the current directory to the container
     restart: unless-stopped

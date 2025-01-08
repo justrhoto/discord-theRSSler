@@ -56,6 +56,11 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
 
+        if (interaction.user.id != process.env.ADMIN_USER_ID) {
+            await interaction.editReply('You must be an admin to run this command.');
+            return;
+        }
+
         const rssUrl = interaction.options.getString('rss_url');
         const feed = await parser.parseURL(rssUrl);
 

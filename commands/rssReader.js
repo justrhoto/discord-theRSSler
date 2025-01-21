@@ -27,7 +27,7 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
         const feedsData = loadFeeds();
         const feed = await parser.parseURL(rssUrl);
 
-        const currentFeed = feedsData.feeds.find(f => f.url === rssUrl);
+        const currentFeed = feedsData.feeds.find(f => f.url === rssUrl && f.channel.id === channel.id);
         if (feed.items[0].link !== currentFeed.lastPostedItemUrl) {
             console.log(`New link: ${feed.items[0].link}`);
             currentFeed.lastPostedItemUrl = feed.items[0].link;
@@ -70,7 +70,7 @@ module.exports = {
         }
 
         const feedsData = loadFeeds();
-        const existingFeed = feedsData.feeds.find(f => f.url === rssUrl);
+        const existingFeed = feedsData.feeds.find(f => f.url === rssUrl && f.channel.id === interaction.channel.id);
 
         if (existingFeed) {
             await interaction.editReply(`Feed ${feed.title} is already added.`);

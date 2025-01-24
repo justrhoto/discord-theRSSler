@@ -33,7 +33,7 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
             currentFeed.lastPostedItemUrl = feed.items[0].link;
             await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
 
-            const firstItemUrl = feed.items[0].content.match(/https?:\/\/.*?.jpg/)[0];
+            const firstItemUrl = feed.items[0]['content:encoded'].match(/.*?src=\"([^\"]*?)\"[^>]*?>/)[1];
             await channel.send(`${firstItemUrl}`);
 
             saveFeeds(feedsData);

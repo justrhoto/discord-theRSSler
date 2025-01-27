@@ -8,6 +8,7 @@ const parser = new Parser();
 const feedsFilePath = path.join(__dirname, '..', 'feeds.json');
 
 const intervals = [];
+const updateQueue = [];
 
 const loadFeeds = () => {
     if (fs.existsSync(feedsFilePath)) {
@@ -21,9 +22,28 @@ const saveFeeds = (feeds) => {
     fs.writeFileSync(feedsFilePath, JSON.stringify(feeds, null, 2));
 };
 
+const processQueue = async () => {
+    if (updateQueue.length === 0) return;
+
+    const { rssUrl, channel } = updateQueue.shift();
+    await fetchAndSendFeedUpdates(rssUrl, channel);
+
+    if (updateQueue.length > 0) {
+        processQueue();
+    }
+};
+
+const queueFeedUpdate = (rssUrl, channel) => {
+    updateQueue.push({ rssUrl, channel });
+    if (updateQueue.length === 1) {
+        processQueue();
+    }
+};
+
 const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
     try {
-        console.log(`Fetching ${rssUrl}`)
+        console.log(`Fetching ${rssUrl}`);
+
         const feedsData = loadFeeds();
         const feed = await parser.parseURL(rssUrl);
 
@@ -80,8 +100,8 @@ module.exports = {
         feedsData.feeds.push({ url: rssUrl, lastPostedItemUrl: null, channel: interaction.channel });
         saveFeeds(feedsData);
 
-        fetchAndSendFeedUpdates(rssUrl, interaction.channel);
-        intervals.push(setInterval(() => fetchAndSendFeedUpdates(rssUrl, interaction.channel), 900000));
+        queueFeedUpdate(rssUrl, interaction.channel);
+        intervals.push(setInterval(() => queueFeedUpdate(rssUrl, interaction.channel), 900000));
 
         await interaction.editReply(`Feed ${feed.title} added to ${interaction.channel}`);
     },
@@ -107,8 +127,8 @@ const initFeeds = (client) => {
     const savedFeeds = loadFeeds();
     savedFeeds.feeds.forEach(async feed => {
         const channel = await client.channels.fetch(feed.channel.id);
-        fetchAndSendFeedUpdates(feed.url, channel);
-        intervals.push(setInterval(() => fetchAndSendFeedUpdates(feed.url, channel), 900000));
+        queueFeedUpdate(feed.url, channel);
+        intervals.push(setInterval(() => queueFeedUpdate(feed.url, channel), 900000));
         console.log(`${feed.url}: Feed loaded from config.`);
     });
     console.log(`RSS feed module initialized`);

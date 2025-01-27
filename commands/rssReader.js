@@ -123,13 +123,13 @@ module.exports = {
     }
 };
 
-const initFeeds = (client) => {
+const initFeeds = async (client) => {
     const savedFeeds = loadFeeds();
-    savedFeeds.feeds.forEach(async feed => {
+    for (const feed of savedFeeds.feeds) {
         const channel = await client.channels.fetch(feed.channel.id);
         queueFeedUpdate(feed.url, channel);
         intervals.push(setInterval(() => queueFeedUpdate(feed.url, channel), 900000));
         console.log(`${feed.url}: Feed loaded from config.`);
-    });
+    }
     console.log(`RSS feed module initialized`);
 }

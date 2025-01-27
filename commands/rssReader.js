@@ -25,11 +25,12 @@ const saveFeeds = (feeds) => {
 const processQueue = async () => {
     if (updateQueue.length === 0) return;
 
-    const { rssUrl, channel } = updateQueue.shift();
+    const { rssUrl, channel } = updateQueue[0];
     await fetchAndSendFeedUpdates(rssUrl, channel);
+    updateQueue.shift();
 
     if (updateQueue.length > 0) {
-        processQueue();
+        await processQueue();
     }
 };
 

@@ -1,47 +1,58 @@
-const { REST, Routes } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
-const { config } = require('dotenv');
+const { REST, Routes } = require("discord.js");
+const fs = require("node:fs");
+const path = require("node:path");
+const { config } = require("dotenv");
 
 config();
 
 const commands = [];
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const module = require(filePath);
+  const filePath = path.join(commandsPath, file);
+  const module = require(filePath);
 
-    const loadCommand = (command) => {
-        if ('data' in command && 'execute' in command) {
-            commands.push(command.data.toJSON());
-        } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-        }
-    }
-
-    if (module.commands) {
-        module.commands.forEach((command) => loadCommand(command));
+  const loadCommand = (command) => {
+    if ("data" in command && "execute" in command) {
+      commands.push(command.data.toJSON());
     } else {
-        loadCommand(module);
+      console.log(
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+      );
     }
+  };
+
+  if (module.commands) {
+    module.commands.forEach((command) => loadCommand(command));
+  } else {
+    loadCommand(module);
+  }
 }
 
 const rest = new REST().setToken(process.env.TOKEN);
 
 (async () => {
-    try {
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+  try {
+    console.log(
+      `Started refreshing ${commands.length} application (/) commands.`
+    );
 
-        const data = await rest.put(
-            Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-            { body: commands },
-        );
+    const data = await rest.put(
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID
+      ),
+      { body: commands }
+    );
 
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-    } catch (error) {
-        console.error(error);
-    }
+    console.log(
+      `Successfully reloaded ${data.length} application (/) commands.`
+    );
+  } catch (error) {
+    console.error(error);
+  }
 })();

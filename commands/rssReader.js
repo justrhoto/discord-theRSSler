@@ -2,6 +2,7 @@ const { SlashCommandBuilder, Events } = require("discord.js");
 const Parser = require("rss-parser");
 const fs = require("fs");
 const path = require("path");
+const cheerio = require("cheerio");
 
 const parser = new Parser();
 
@@ -54,12 +55,19 @@ const fetchAndSendFeedUpdates = async (rssUrl, channel) => {
     if (feed.items[0].link !== currentFeed.lastPostedItemUrl) {
       console.log(`New link: ${feed.items[0].link}`);
       currentFeed.lastPostedItemUrl = feed.items[0].link;
-      await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
+      const encodedContent = feed.items[0]["content:encoded"];
+      $ = cheerio.load(encodedContent);
+      const srcSet = $("p").first().find("img").attr("srcset").split(", ");
+      const images = srcSet.map((str) => {
+        const [url, widthStr] = str.split(" ");
+        const width = parseInt(widthStr.replace("w", ""));
+        return { url, width };
+      });
+      images.sort((a, b) => a.width - b.width);
+      const imageUrl = images[images.length - 2].url; // use the second largest image
 
-      const firstItemUrl = feed.items[0]["content:encoded"].match(
-        /.*?src=\"([^\"]*?)\"[^>]*?>/
-      )[1];
-      await channel.send(`${firstItemUrl}`);
+      await channel.send(`New ${feed.title} post! <${feed.items[0].link}>`);
+      await channel.send(`${imageUrl}`);
 
       saveFeeds(feedsData);
     }
